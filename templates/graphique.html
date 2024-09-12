@@ -2,38 +2,46 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Graphique des Commits</title>
+    <title>Histogramme</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   </head>
   <body>
-    <h2>Histogramme des Commits Minute par Minute</h2>
     <div id="chart_div"></div>
     <script>
       google.charts.load('current', { packages: ['corechart'] });
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
-        fetch('/commits/')
+        function createChart(data) {
+          // Convertir les données récupérées en un tableau utilisable par Google Charts
+          var dataTable = new google.visualization.DataTable();
+          dataTable.addColumn('string', 'Date');
+          dataTable.addColumn('number', 'Température (°C)');
+
+          data.results.forEach(entry => {
+            var date = new Date(entry.Jour * 1000); // Convertir le timestamp en date
+            dataTable.addRow([date.toLocaleDateString(), entry.temp]);
+          });
+
+          // Configurer les options du graphique en histogramme
+          var options = {
+            title: 'Évolution des températures de la ville de Tawarano',
+            hAxis: { title: 'Date' },
+            vAxis: { title: 'Température (°C)' },
+            legend: { position: 'none' }
+          };
+
+          // Créer et dessiner l'histogramme
+          var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+          chart.draw(dataTable, options);
+        }
+
+        // Récupération des données depuis notre API /tawarano/
+        fetch('/tawarano/')
           .then(response => response.json())
           .then(data => {
-            var dataTable = new google.visualization.DataTable();
-            dataTable.addColumn('string', 'Minute');
-            dataTable.addColumn('number', 'Nombre de Commits');
-            data.results.forEach(entry => {
-              dataTable.addRow([entry.minute, entry.count]);
-            });
-
-            var options = {
-              title: 'Nombre de Commits Minute par Minute',
-              hAxis: { title: 'Minute' },
-              vAxis: { title: 'Nombre de Commits' },
-              legend: { position: 'none' }
-            };
-
-            var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
-            chart.draw(dataTable, options);
-          })
-          .catch(error => console.error('Error:', error));
+            createChart(data);
+          });
       }
     </script>
   </body>
