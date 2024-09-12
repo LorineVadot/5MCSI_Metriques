@@ -35,7 +35,7 @@ def histogramme():
 def commits():
     try:
         url = 'https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits'
-        headers = {'Authorization': 'token YOUR_GITHUB_TOKEN'}
+        headers = {'Authorization': 'token 7f970836ef744327b36b3f08eb37a640'}
         response = requests.get(url, headers=headers)
         response.raise_for_status()  # Raise an error for HTTP error responses
         commits_data = response.json()
