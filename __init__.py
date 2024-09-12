@@ -32,32 +32,17 @@ def histogramme():
     return render_template("graphique.html")
 
 @app.route('/commits/')
-def commits():
+def index():
+    return render_template('commits.html')
+ 
+@app.route('/extract-minutes/<date_string>')
+def extract_minutes(date_string):
     try:
-        url = 'https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits'
-        headers = {'Authorization': 'token 7f970836ef744327b36b3f08eb37a640'}
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Raise an error for HTTP error responses
-        commits_data = response.json()
-        
-        # Extraire les dates des commits
-        commit_times = [commit['commit']['author']['date'] for commit in commits_data]
-        
-        # Extraire les minutes et compter les commits
-        minutes = [datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M') for time in commit_times]
-        minute_counts = Counter(minutes)
-        
-        # Préparer les données pour le graphique
-        results = [{'minute': minute, 'count': count} for minute, count in minute_counts.items()]
-        
-        return jsonify(results=results)
-    
-    except requests.ConnectionError:
-        return jsonify({"error": "Échec de la connexion à l'API GitHub."}), 500
-    except requests.Timeout:
-        return jsonify({"error": "La requête à l'API GitHub a expiré."}), 500
-    except requests.RequestException as e:
-        return jsonify({"error": f"Erreur lors de la requête à l'API GitHub: {str(e)}"}), 500
+        date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
+        minutes = date_object.strftime('%Y-%m-%d %H:%M')  # Format minute
+        return jsonify({'minutes': minutes})
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use the following format: YYYY-MM-DDTHH:MM:SSZ'}), 400
                                                                                                                                        
 @app.route('/')
 def hello_world():
