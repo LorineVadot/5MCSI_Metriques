@@ -1,41 +1,111 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Graphique des Commits</title>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  </head>
-  <body>
-    <h2>Histogramme des Commits Minute par Minute</h2>
-    <div id="chart_div"></div>
-    <script>
-      google.charts.load('current', { packages: ['corechart'] });
-      google.charts.setOnLoadCallback(drawChart);
-
-      function drawChart() {
-        fetch('/commits/')
-          .then(response => response.json())
-          .then(data => {
-            var dataTable = new google.visualization.DataTable();
-            dataTable.addColumn('string', 'Minute');
-            dataTable.addColumn('number', 'Nombre de Commits');
-            data.results.forEach(entry => {
-              dataTable.addRow([entry.minute, entry.count]);
-            });
-
-            var options = {
-              title: 'Nombre de Commits Minute par Minute',
-              hAxis: { title: 'Minute' },
-              vAxis: { title: 'Nombre de Commits' },
-              legend: { position: 'none' }
-            };
-
-            var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
-            chart.draw(dataTable, options);
-          })
-          .catch(error => console.error('Error:', error));
-      }
-    </script>
-  </body>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commits par Minute</title>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #ece9e6, #ffffff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 900px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            font-family: 'Baskerville', 'Georgia', serif;
+        }
+        #chart_div {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+        }
+</style>
+</head>
+<body>
+ 
+<div class="container">
+<h1>Nombre de commits par minute</h1>
+<div id="chart_div"></div>
+</div>
+ 
+<script type="text/javascript">
+    google.charts.load('current', {packages: ['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+ 
+    function drawChart() {
+        fetch('https://api.github.com/repos/CelinaBRAHIMI/5MCSI_Metriques/commits')
+            .then(response => response.json())
+            .then(data => {
+                const commitsByMinute = {};
+ 
+                Promise.all(data.map(commitData => {
+                    const commitDate = commitData.commit.author.date;
+                    return fetch(`/extract-minutes/${encodeURIComponent(commitDate)}`)
+                        .then(response => response.json())
+                        .then(result => {
+                            const minute = result.minutes;
+ 
+                            if (!commitsByMinute[minute]) {
+                                commitsByMinute[minute] = 1;
+                            } else {
+                                commitsByMinute[minute]++;
+                            }
+                        });
+                })).then(() => {
+                    const dataArray = [['Minute', 'Commits']];
+                    for (const minute in commitsByMinute) {
+                        dataArray.push([minute, commitsByMinute[minute]]);
+                    }
+ 
+                    var dataTable = google.visualization.arrayToDataTable(dataArray);
+ 
+                    var options = {
+                        title: 'Nombre de commits minute par minute',
+                        hAxis: {
+                            title: 'Minute',
+                            slantedText: true,
+                            slantedTextAngle: 45,
+                            textStyle: {color: '#6b6b6b'}
+                        },
+                        vAxis: {
+                            title: 'Nombre de commits',
+                            textStyle: {color: '#6b6b6b'},
+                            titleTextStyle: {color: '#333'}
+                        },
+                        legend: {position: 'none'},
+                        backgroundColor: 'transparent',
+                        colors: ['#4caf50'],
+                        chartArea: {width: '80%', height: '70%'}
+                    };
+ 
+                    var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+                    chart.draw(dataTable, options);
+                });
+            })
+            .catch(error => console.error('Erreur lors de la récupération des données :', error));
+    }
+</script>
+ 
+</body>
 </html>
-
