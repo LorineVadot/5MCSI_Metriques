@@ -31,13 +31,17 @@ def mongraphique():
 def histogramme():
     return render_template("graphique.html")
 
+import requests
+
 @app.route('/commits/')
 def commits():
     try:
         url = 'https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits'
-        response = urlopen(url)
-        raw_content = response.read()
-        commits_data = json.loads(raw_content.decode('utf-8'))
+        headers = {
+            'Authorization': '7f970836ef744327b36b3f08eb37a640'
+        }
+        response = requests.get(url, headers=headers)
+        commits_data = response.json()
         
         # Extraire les dates des commits
         commit_times = [commit['commit']['author']['date'] for commit in commits_data]
