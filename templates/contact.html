@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Contact</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .container {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+      }
+      h1 {
+        margin-bottom: 1rem;
+        color: #007bff;
+        text-align: center;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+      label {
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+      }
+      input, textarea {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 150px;
+      }
+      button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Contactez-nous</h1>
+      <form>
+        <label for="first-name">Prénom :</label>
+        <input type="text" id="first-name" name="first-name" required>
+        
+        <label for="last-name">Nom :</label>
+        <input type="text" id="last-name" name="last-name" required>
+        
+        <label for="message">Message :</label>
+        <textarea id="message" name="message" required></textarea>
+        
+        <button type="submit">Envoyer</button>
+      </form>
+    </div>
+  </body>
+</html>
