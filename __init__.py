@@ -31,15 +31,33 @@ def mongraphique():
 def histogramme():
     return render_template("graphique.html")
 
-@app.route('/test_commits/')
-def test_commits():
+@app.route('/commits/')
+def commits():
     try:
         url = 'https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits'
-        headers = {'Authorization': '7f970836ef744327b36b3f08eb37a640'}
+        headers = {'Authorization': 'token YOUR_GITHUB_TOKEN'}
         response = requests.get(url, headers=headers)
-        return jsonify(response.json())
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        response.raise_for_status()  # Raise an error for HTTP error responses
+        commits_data = response.json()
+        
+        # Extraire les dates des commits
+        commit_times = [commit['commit']['author']['date'] for commit in commits_data]
+        
+        # Extraire les minutes et compter les commits
+        minutes = [datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M') for time in commit_times]
+        minute_counts = Counter(minutes)
+        
+        # Préparer les données pour le graphique
+        results = [{'minute': minute, 'count': count} for minute, count in minute_counts.items()]
+        
+        return jsonify(results=results)
+    
+    except requests.ConnectionError:
+        return jsonify({"error": "Échec de la connexion à l'API GitHub."}), 500
+    except requests.Timeout:
+        return jsonify({"error": "La requête à l'API GitHub a expiré."}), 500
+    except requests.RequestException as e:
+        return jsonify({"error": f"Erreur lors de la requête à l'API GitHub: {str(e)}"}), 500
                                                                                                                                        
 @app.route('/')
 def hello_world():
